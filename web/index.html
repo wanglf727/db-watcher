@@ -22,7 +22,6 @@
     var ws = new WebSocket('ws://localhost:9501');
     ws.onopen = function (evt) {};
     ws.onmessage = function (evt) {
-        console.log(evt.data);
         showData(evt.data);
     };
     ws.onclose = function (evt) {

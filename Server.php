@@ -56,9 +56,7 @@ class Server
             }
         } else {
             foreach ($this->server->connections as $fd) {
-                var_dump('?'.$fd);
                 if ($this->server->isEstablished($fd)) {
-                    var_dump('='.$fd);
                     $this->server->push($fd, $result);
                 }
             }
