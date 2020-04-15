@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>mysql监控</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="container">
+    <h1>世界，你好！</h1>
+    <div id="content"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+<script>
+    var ws = new WebSocket('ws://localhost:9501');
+    ws.onopen = function (evt) {};
+    ws.onmessage = function (evt) {
+        console.log(evt.data);
+        showData(evt.data);
+    };
+    ws.onclose = function (evt) {
+        console.log('Bye');
+    };
+    ws.onerror = function (evt, e) {
+        console.log('Error');
+    };
+    function showData(data) {
+        var itmes = JSON.parse(data);
+        $html = '<div id="content">';
+        $.each(itmes, function(index, item) {
+            if (item['single_line']) {
+                $html += '<table class="table table-hover table-bordered">';
+                $html += '<caption><span class="glyphicon glyphicon-tag" aria-hidden="true"></span><span>' + item['caption'] + '</span></caption>';
+                $html += '<tbody><tr><td>' + item['body']['Variable_name'] + '</td><td>' + item['body']['Value'] + '</td></tr></tbody>';
+                if (item['foot']) {
+                    $html += '<tfoot><tr><td colspan="2">' + item['foot'] + '</td></tr></tfoot>';
+                }
+                $html += '</table>';
+            } else {
+                $html += '<table class="table table-hover table-bordered">';
+                $html += '<caption><span class="glyphicon glyphicon-tag" aria-hidden="true"></span><span>' + item['caption'] + '</span></caption>';
+                // thead
+                $html += '<thead><tr>';
+                $.each(item['head'], function (index, th) {
+                    $html += '<th>' + th['zh'] + '</th>';
+                });
+                $html += '</tr></thead>';
+                // tbody
+                $html += '<tbody>';
+                $.each(item['body'], function (index, tr) {
+                    $html += '<tr>';
+                    $.each(tr, function (index, td) {
+                        $html += '<td>' + td + '</td>';
+                    });
+                    $html += '</tr>';
+                });
+                $html += '</tbody>';
+                // tfoot
+                if (item['foot']) {
+                    $html += '<tfoot><tr><td colspan="' + item['head'].length + '">' + '【Tips】' + item['foot'] + '</td></tr></tfoot>';
+                }
+                $html += '</table>';
+            }
+        });
+        $html += '</div>';
+        $("#content").replaceWith($html);
+    }
+</script>
+</body>
+</html>
